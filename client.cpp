@@ -6,8 +6,29 @@
 #include <string>
 #include <stdlib.h>
 #include <iostream>
+#include <thread>
 #include <cstring>
 #define SERVER_PORT 9699
+
+std::string username;
+
+void server_to_screen(int sock) {
+  while (true) {
+    char buffer[1024] = {0};
+    read(sock, buffer, 1024);
+    int i = 0;
+    while (buffer[i] != ':') {
+      if (buffer[i] == username[i]) {
+        ++i;
+      } else {
+        break;
+      }
+    }
+    if (buffer[i] != ':') {
+          printf("%s\n", buffer);
+    }
+  }
+}
 
 int main(int arg, char const *argv[]) {
   int sock = 0, valread;
@@ -37,12 +58,14 @@ int main(int arg, char const *argv[]) {
   }
 
   // Read username and send to server
-  printf("What do you want to be called?\n");
-  std::string username;
+  printf("What do you want to be called? (please use only characters and digits)\n");
   getline(std::cin, username);
   send(sock, username.c_str(), username.length(), 0);
+  printf("-----You are connected!-----\n");
 
-  // Read from keyboard and send to server
+  // Communicate with other clients via server
+  std::thread recieve_from_server(server_to_screen, sock);
+
   while (true) {
     std::string temp = "";
     getline (std::cin, temp);
@@ -52,8 +75,5 @@ int main(int arg, char const *argv[]) {
     }
   }
 
-  // Read from server and print
-  valread = read(sock, buffer, 1024);
-  printf("%s\n", buffer);
   return 0;
 }

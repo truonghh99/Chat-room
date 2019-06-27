@@ -7,25 +7,45 @@
 #include <vector>
 #include <thread>
 
+#include "message_queue.cpp"
+
 #define PORT 9699
 
-int server_fd, new_socket, valread;
-struct sockaddr_in address;
-int addrlen = sizeof(address);
-int opt = 1;
-int test;
+MessageQueue message_queue; 
+std::vector<int> clients;
 
-void worker (int socket) {
+void read_and_enqueue_messages (int socket) {
   char username[1024] = {0};
   read(socket, username, 1024);
-  char buffer[1024] = {0};
   while (true) {
+    char buffer[1024] = {0};
     read(socket, buffer, 1024);
-    printf("%s: %s\n", username, buffer);
+    string tempMessage = username + string(": ") + buffer;
+    message_queue.push(tempMessage);
   }
 }
 
-int main(int argc, char const *argv[]) {    
+void forward_messages () {
+  while (true) {
+    if (message_queue.empty()) continue;
+    string message = message_queue.top();
+    std::cout << "Forwarding " + message;
+    const char *messageAdd = message.c_str();
+    for (int i = 0; i < clients.size(); ++i) {
+      send(clients[i], messageAdd, message.length(), 0);
+    }
+    message_queue.pop();
+  }
+}
+
+int main(int argc, char const *argv[]) {   
+
+  int server_fd, new_socket, valread;
+  struct sockaddr_in address;
+  int addrlen = sizeof(address);
+  int opt = 1;
+  int test;
+
   // Creating socket
   test = server_fd = socket(AF_INET, SOCK_STREAM, 0);
   if (test == -1) {
@@ -58,14 +78,16 @@ int main(int argc, char const *argv[]) {
   }
 
   // Accept and print message from client
+  thread forward(forward_messages);
   std::vector<std::thread> threads;
   while (true) {
     test = new_socket = accept(server_fd, (struct sockaddr*)&address, (socklen_t*)&addrlen);
+    clients.push_back(new_socket);
     if (test == -1) {
       perror("accept failed");
       exit(-1);
     }
-    threads.emplace_back(std::thread(worker, new_socket));
+    threads.emplace_back(std::thread(read_and_enqueue_messages, new_socket));
   }
 
   return 0;
