@@ -39,7 +39,6 @@ void forward_messages () {
 }
 
 int main(int argc, char const *argv[]) {   
-
   int server_fd, new_socket, valread;
   struct sockaddr_in address;
   int addrlen = sizeof(address);

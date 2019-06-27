@@ -66,6 +66,7 @@ int main(int arg, char const *argv[]) {
   // Communicate with other clients via server
   std::thread recieve_from_server(server_to_screen, sock);
 
+  // Read from keyboard and send to server
   while (true) {
     std::string temp = "";
     getline (std::cin, temp);
@@ -74,6 +75,5 @@ int main(int arg, char const *argv[]) {
       send(sock, temp_add, temp.length(), 0);
     }
   }
-
   return 0;
 }
