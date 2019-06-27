@@ -40,16 +40,15 @@ int main(int arg, char const *argv[]) {
   printf("What do you want to be called?\n");
   std::string username;
   getline(std::cin, username);
-  const char *name = username.c_str();
-  send(sock, name, username.length(), 0);
+  send(sock, username.c_str(), username.length(), 0);
 
   // Read from keyboard and send to server
   while (true) {
     std::string temp = "";
     getline (std::cin, temp);
     if (!temp.empty()) {
-      const char *tempAdd= temp.c_str();
-      send(sock, tempAdd, temp.length(), 0);
+      const char *temp_add= temp.c_str();
+      send(sock, temp_add, temp.length(), 0);
     }
   }
 
