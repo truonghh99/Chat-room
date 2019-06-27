@@ -4,16 +4,27 @@
 #include <stdlib.h> 
 #include <netinet/in.h> 
 #include <string.h> 
+#include <vector>
+#include <thread>
+
 #define PORT 9699
 
-int main(int argc, char const *argv[]) {
-	int server_fd, new_socket, valread;
-	struct sockaddr_in address;
-	int addrlen = sizeof(address);
-	int opt = 1;
+int server_fd, new_socket, valread;
+struct sockaddr_in address;
+int addrlen = sizeof(address);
+int opt = 1;
+char *hello = "Hello from server";
+int test;
+
+void read_print (int socket) {
 	char buffer[1024] = {0};
-	char *hello = "Hello from server";
-	int test;
+	while (true) {
+		int valread = read(socket, buffer, 1024);
+		printf("%s\n", buffer);
+	}
+}
+
+int main(int argc, char const *argv[]) {	
 
 	// creating socket
 	test = server_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -47,14 +58,16 @@ int main(int argc, char const *argv[]) {
 	}
 
 	// accept
-	test = new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
-	if (test == -1) {
-		perror("accept failed");
-		exit(-1);
+	std::vector<std::thread> threads;
+	while (true) {
+		test = new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
+		if (test == -1) {
+			perror("accept failed");
+			exit(-1);
+		}
+		threads.emplace_back(std::thread(read_print, new_socket));
 	}
 
-	valread = read(new_socket, buffer, 1024);
-	printf("%s\n", buffer);
 	send(new_socket, hello, strlen(hello), 0);
 	printf("Hello message sent");
 	return 0;

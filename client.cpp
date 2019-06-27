@@ -1,15 +1,17 @@
-#include <stdio.h> 
+#include <cstdio> 
 #include <sys/socket.h> 
 #include <arpa/inet.h> 
 #include <unistd.h> 
 #include <string.h> 
+#include <string>
 #include <stdlib.h>
+#include <iostream>
+#include <cstring>
 #define SERVER_PORT 9699
 
 int main(int arg, char const *argv[]) {
 	int sock = 0, valread;
 	struct sockaddr_in serv_addr;
-	char *hello = "Hello from client";
 	char buffer[1024] = {0};
 	int test;
 
@@ -33,8 +35,14 @@ int main(int arg, char const *argv[]) {
 		perror("connect failed");
 		exit(-1);
 	}
-	send(sock, hello, strlen(hello), 0);
-	printf("Hello message sent by client\n");
+	while (true) {
+		std::string temp = "";
+		getline (std::cin, temp);
+		if (!temp.empty()) {
+			const char *tempAdd= temp.c_str();
+			send(sock, tempAdd, temp.length(), 0);
+		}
+	}
 	valread = read(sock, buffer, 1024);
 	printf("%s\n", buffer);
 	return 0;
