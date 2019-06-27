@@ -41,8 +41,8 @@ int main(int arg, char const *argv[]) {
         std::string temp = "";
         getline (std::cin, temp);
         if (!temp.empty()) {
-            const char *tempAdd= temp.c_str();
-            send(sock, tempAdd, temp.length(), 0);
+            const char *temp_add= temp.c_str();
+            send(sock, temp_add, temp.length(), 0);
         }
     }
 
