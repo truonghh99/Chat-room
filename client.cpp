@@ -18,14 +18,16 @@ void server_to_screen(int sock) {
   while (true) {
     int byte_read = read(sock, buffer, 1024);
     buffer[byte_read] = 0;    int i = 0;
-    while (buffer[i] != ':') { // Read username of the message's sender
+    // Read username of the message's sender
+    while (buffer[i] != ':') { 
       if (buffer[i] == username[i]) {
         ++i;
       } else {
         break;
       }
     }
-    if (buffer[i] != ':') { // Check if this username matches the client's name
+    // Check if this username matches the client's name
+    if (buffer[i] != ':') { 
       printf("%s\n", buffer);
     }
   }
