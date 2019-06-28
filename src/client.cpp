@@ -10,6 +10,7 @@
 #include <cstring>
 #define SERVER_PORT 9699
 
+const std::string ip_address = "192.168.5.24";
 std::string username;
 
 /* This method read messgaes from server, check if they belong to this client, and print out if they don't */
@@ -34,9 +35,8 @@ void server_to_screen(int sock) {
 }
 
 int main(int arg, char const *argv[]) {
-  int sock = 0, valread;
+  int sock = 0;
   struct sockaddr_in serv_addr;
-  char buffer[1024] = {0};
   int test;
 
   // Create client socket
@@ -49,7 +49,7 @@ int main(int arg, char const *argv[]) {
   serv_addr.sin_port = htons(SERVER_PORT);
 
   // Convert address
-  test = inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr);
+  test = inet_pton(AF_INET, ip_address.c_str(), &serv_addr.sin_addr);
   if (test == -1) {
     perror("Invalid address");
     exit(-1);
