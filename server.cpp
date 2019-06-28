@@ -20,7 +20,12 @@ void read_and_enqueue_messages (int socket) {
   read(socket, username, 1024);
   while (true) {
     char buffer[1024] = {0};
-    read(socket, buffer, 1024);
+    int check = read(socket, buffer, 1024);
+    if (check == 0) {
+      string tempMessage = string("-----") + username + string(" has left the conversation-----");
+      message_queue.push(tempMessage);
+      break;
+    }
     string tempMessage = username + string(": ") + buffer;
     message_queue.push(tempMessage);
   }
