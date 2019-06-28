@@ -4,6 +4,8 @@
 
 using namespace std;
 
+/* This class implements a thread-safe queue data structure
+*/
 class MessageQueue {
  public:
   void push(string message) {
@@ -27,6 +29,6 @@ class MessageQueue {
   }
 
  private:
-  std::queue <string> innerQueue_;
+  queue <string> innerQueue_;
   mutex queueMutex_;
 };

@@ -12,20 +12,21 @@
 
 std::string username;
 
+/* This method read messgaes from server, check if they belong to this client, and print out if they don't */
 void server_to_screen(int sock) {
+  char buffer[1024] = {0};
   while (true) {
-    char buffer[1024] = {0};
-    read(sock, buffer, 1024);
-    int i = 0;
-    while (buffer[i] != ':') {
+    int byte_read = read(sock, buffer, 1024);
+    buffer[byte_read] = 0;    int i = 0;
+    while (buffer[i] != ':') { // Read username of the message's sender
       if (buffer[i] == username[i]) {
         ++i;
       } else {
         break;
       }
     }
-    if (buffer[i] != ':') {
-          printf("%s\n", buffer);
+    if (buffer[i] != ':') { // Check if this username matches the client's name
+      printf("%s\n", buffer);
     }
   }
 }
@@ -64,8 +65,9 @@ int main(int arg, char const *argv[]) {
   printf("-----You are connected!-----\n");
 
   // Communicate with other clients via server
-  std::thread recieve_from_server(server_to_screen, sock);
+  std::thread receive_from_server(server_to_screen, sock);
 
+  // Read from keyboard and send to server
   while (true) {
     std::string temp = "";
     getline (std::cin, temp);

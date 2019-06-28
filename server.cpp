@@ -14,6 +14,7 @@
 MessageQueue message_queue; 
 std::vector<int> clients;
 
+/* This method reads messages from clients and enqueue them to message_queue to forward later */
 void read_and_enqueue_messages (int socket) {
   char username[1024] = {0};
   read(socket, username, 1024);
@@ -25,14 +26,17 @@ void read_and_enqueue_messages (int socket) {
   }
 }
 
+/* This method forward messages from message_queue to all clients */
 void forward_messages () {
   while (true) {
-    if (message_queue.empty()) continue;
+    if (message_queue.empty()) {
+      continue;
+    }
     string message = message_queue.top();
     std::cout << "Forwarding " + message;
-    const char *messageAdd = message.c_str();
+    const char *message_add = message.c_str();
     for (int i = 0; i < clients.size(); ++i) {
-      send(clients[i], messageAdd, message.length(), 0);
+      send(clients[i], message_add, message.length(), 0);
     }
     message_queue.pop();
   }
