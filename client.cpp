@@ -6,8 +6,32 @@
 #include <string>
 #include <stdlib.h>
 #include <iostream>
+#include <thread>
 #include <cstring>
 #define SERVER_PORT 9699
+
+std::string username;
+
+/* This method read messgaes from server, check if they belong to this client, and print out if they don't */
+void server_to_screen(int sock) {
+  char buffer[1024] = {0};
+  while (true) {
+    int byte_read = read(sock, buffer, 1024);
+    buffer[byte_read] = 0;    int i = 0;
+    // Read username of the message's sender
+    while (buffer[i] != ':') { 
+      if (buffer[i] == username[i]) {
+        ++i;
+      } else {
+        break;
+      }
+    }
+    // Check if this username matches the client's name
+    if (buffer[i] != ':') { 
+      printf("%s\n", buffer);
+    }
+  }
+}
 
 int main(int arg, char const *argv[]) {
   int sock = 0, valread;
@@ -37,10 +61,13 @@ int main(int arg, char const *argv[]) {
   }
 
   // Read username and send to server
-  printf("What do you want to be called?\n");
-  std::string username;
+  printf("What do you want to be called? (please use only characters and digits)\n");
   getline(std::cin, username);
   send(sock, username.c_str(), username.length(), 0);
+  printf("-----You are connected!-----\n");
+
+  // Communicate with other clients via server
+  std::thread receive_from_server(server_to_screen, sock);
 
   // Read from keyboard and send to server
   while (true) {
@@ -52,8 +79,5 @@ int main(int arg, char const *argv[]) {
     }
   }
 
-  // Read from server and print
-  valread = read(sock, buffer, 1024);
-  printf("%s\n", buffer);
   return 0;
 }
